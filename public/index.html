@@ -283,6 +283,10 @@
             justify-content: center;
             margin-top: 8px;
             flex-wrap: wrap;
+            padding: 8px 12px;
+            background: #0f172a;
+            border-radius: 40px;
+            border: 1px solid #334155;
         }
         .size-control label {
             color: #94a3b8;
@@ -301,11 +305,17 @@
         }
         .size-control input:focus { border-color: #facc15; }
         .size-control .btn { font-size: 0.8rem; padding: 4px 14px; }
+        .size-control .size-info {
+            color: #64748b;
+            font-size: 0.75rem;
+        }
         @media (max-width: 600px) {
             .title { font-size: 1.5rem; }
             .main-panel { padding: 12px; min-width: auto; }
             .side-panel { min-width: auto; }
             .host-controls .btn { min-width: 60px; font-size: 0.7rem; padding: 4px 10px; }
+            .size-control { padding: 6px 10px; }
+            .size-control input { width: 50px; }
         }
     </style>
 </head>
@@ -334,11 +344,12 @@
                 <div class="canvas-container">
                     <canvas id="gameCanvas" width="550" height="550"></canvas>
                 </div>
-                <!-- Controles de tamaño (solo para el anfitrión antes de iniciar) -->
-                <div id="sizeControls" class="size-control hidden">
-                    <label>📐 Tamaño del tablero:</label>
+                <!-- Controles de tamaño (visible para el anfitrión) -->
+                <div id="sizeControls" class="size-control">
+                    <label>📐 Tamaño:</label>
                     <input type="number" id="gridSizeInput" value="5" min="3" max="20">
                     <button class="btn btn-secondary btn-sm" id="applySizeBtn">Aplicar</button>
+                    <span class="size-info" id="sizeInfo">3x3 a 20x20</span>
                 </div>
                 <div id="hostControls" class="host-controls hidden">
                     <button class="btn btn-secondary" id="resetBtn">🔄 Reiniciar</button>
@@ -470,7 +481,6 @@
             }
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            // Limitar mensajes
             while (chatMessages.children.length > 50) {
                 chatMessages.removeChild(chatMessages.firstChild);
             }
@@ -496,11 +506,20 @@
             waitingSizeDisplay2.textContent = size;
         }
 
+        // Mostrar/ocultar controles de tamaño
+        function updateSizeControlsVisibility() {
+            if (isHost && gameState && !gameState.gameStarted) {
+                sizeControls.classList.remove('hidden');
+            } else {
+                sizeControls.classList.add('hidden');
+            }
+        }
+
         // =====================================================
         // DIBUJO DEL TABLERO
         // =====================================================
         function drawBoard(state) {
-            const size = state.gridSize || gridSize;
+            const size = state.gridSize || gridSize || 5;
             const cSize = CANVAS_SIZE / size;
             cellSize = cSize;
             
@@ -616,7 +635,7 @@
         function getLineAtPosition(mx, my) {
             if (!gameState) return null;
             const lines = gameState.lines || [];
-            const size = gameState.gridSize || gridSize;
+            const size = gameState.gridSize || gridSize || 5;
             const cSize = CANVAS_SIZE / size;
             const threshold = Math.max(10, cSize * 0.07);
 
@@ -683,26 +702,28 @@
                 connected = false;
             });
 
-            socket.on('gameCreated', () => {
+            socket.on('gameCreated', (data) => {
                 updateStatus(`✅ Sala ${gameId} creada`, 'connected');
-                if (isHost) {
-                    sizeControls.classList.remove('hidden');
-                }
+                isHost = true;
+                updateSizeControlsVisibility();
             });
 
             socket.on('gameState', (state) => {
                 gameState = state;
+                
+                // Actualizar isHost
+                if (state.isHost !== undefined) {
+                    isHost = state.isHost;
+                }
+                
                 if (state.gameStarted) {
                     gameArea.classList.add('active');
                     waitingArea.classList.add('hidden');
-                    sizeControls.classList.add('hidden');
                 } else {
                     gameArea.classList.remove('active');
                     waitingArea.classList.remove('hidden');
-                    if (isHost) {
-                        sizeControls.classList.remove('hidden');
-                    }
                 }
+                
                 if (state.players) {
                     renderPlayers(state.players);
                     maxPlayersDisplay.textContent = state.maxPlayers || 8;
@@ -711,23 +732,27 @@
                         if (me) myPlayerId = me.id;
                     }
                 }
+                
                 if (state.gridSize) {
                     gridSize = state.gridSize;
                     gridSizeInput.value = gridSize;
                     updateSizeDisplay(gridSize);
                 }
+                
                 if (state.gameStarted) {
                     updateTurnIndicator();
                     drawBoard(state);
                 }
-                if (state.isHost !== undefined) {
-                    isHost = state.isHost;
-                    if (isHost && state.gameStarted) {
-                        hostControls.classList.remove('hidden');
-                    } else {
-                        hostControls.classList.add('hidden');
-                    }
+                
+                // Actualizar visibilidad de controles
+                updateSizeControlsVisibility();
+                
+                if (isHost && state.gameStarted) {
+                    hostControls.classList.remove('hidden');
+                } else {
+                    hostControls.classList.add('hidden');
                 }
+                
                 const startBtn = document.getElementById('startGameBtn');
                 if (isHost && !state.gameStarted && state.players && state.players.filter(p => p.connected).length >= 2) {
                     if (!document.getElementById('startGameBtn')) {
@@ -762,7 +787,6 @@
                 addChatMessage('Sistema', `🎮 ¡La partida ha comenzado! (${data.gridSize}x${data.gridSize})`, true);
                 gameArea.classList.add('active');
                 waitingArea.classList.add('hidden');
-                sizeControls.classList.add('hidden');
                 if (gameState) {
                     gameState.gameStarted = true;
                     gameState.gridSize = data.gridSize;
@@ -771,7 +795,10 @@
                     updateTurnIndicator();
                     drawBoard(gameState);
                 }
-                if (isHost) hostControls.classList.remove('hidden');
+                if (isHost) {
+                    hostControls.classList.remove('hidden');
+                    sizeControls.classList.add('hidden');
+                }
             });
 
             socket.on('linePlaced', (data) => {
@@ -813,6 +840,10 @@
                     updateTurnIndicator();
                     drawBoard(gameState);
                     addChatMessage('Sistema', '🔄 Partida reiniciada', true);
+                    if (isHost) {
+                        hostControls.classList.remove('hidden');
+                        sizeControls.classList.add('hidden');
+                    }
                 }
             });
 
@@ -826,7 +857,10 @@
                     gameState.gameStarted = false;
                     gameArea.classList.remove('active');
                     waitingArea.classList.remove('hidden');
-                    if (isHost) sizeControls.classList.remove('hidden');
+                    if (isHost) {
+                        sizeControls.classList.remove('hidden');
+                        hostControls.classList.add('hidden');
+                    }
                 }
             });
 
@@ -911,6 +945,12 @@
                 gameState.gridSize = size;
                 drawBoard(gameState);
             }
+        });
+
+        gridSizeInput.addEventListener('change', () => {
+            let val = parseInt(gridSizeInput.value) || 5;
+            if (val < 3) gridSizeInput.value = 3;
+            if (val > 20) gridSizeInput.value = 20;
         });
 
         // =====================================================
@@ -998,7 +1038,7 @@
                     const players = gameState.players || [];
                     const currentPlayer = players.find(p => p.id === gameState.currentTurn);
                     const color = currentPlayer ? PLAYER_COLORS[currentPlayer.index % PLAYER_COLORS.length] : '#facc15';
-                    const cSize = CANVAS_SIZE / (gameState.gridSize || gridSize);
+                    const cSize = CANVAS_SIZE / (gameState.gridSize || gridSize || 5);
                     ctx.shadowBlur = 0;
                     if (line.type === 'horizontal') {
                         const x1 = line.col * cSize;
