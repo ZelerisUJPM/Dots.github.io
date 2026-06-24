@@ -227,6 +227,8 @@
             max-width: 550px;
             aspect-ratio: 1 / 1;
             touch-action: none;
+            display: block;
+            margin: 0 auto;
         }
         .turn-indicator {
             text-align: center;
@@ -337,19 +339,20 @@
 
     <div class="game-layout">
         <div class="main-panel">
+            <!-- Controles de tamaño (siempre visibles para el anfitrión antes de empezar) -->
+            <div id="sizeControls" class="size-control">
+                <label>📐 Tamaño del tablero:</label>
+                <input type="number" id="gridSizeInput" value="5" min="3" max="20">
+                <button class="btn btn-secondary btn-sm" id="applySizeBtn">Aplicar</button>
+                <span class="size-info" id="sizeInfo">(3x3 a 20x20)</span>
+            </div>
+
             <div id="gameArea" class="game-area">
                 <div class="turn-indicator" id="turnIndicator">
                     ⏳ Esperando...
                 </div>
                 <div class="canvas-container">
                     <canvas id="gameCanvas" width="550" height="550"></canvas>
-                </div>
-                <!-- Controles de tamaño (visible para el anfitrión) -->
-                <div id="sizeControls" class="size-control">
-                    <label>📐 Tamaño:</label>
-                    <input type="number" id="gridSizeInput" value="5" min="3" max="20">
-                    <button class="btn btn-secondary btn-sm" id="applySizeBtn">Aplicar</button>
-                    <span class="size-info" id="sizeInfo">3x3 a 20x20</span>
                 </div>
                 <div id="hostControls" class="host-controls hidden">
                     <button class="btn btn-secondary" id="resetBtn">🔄 Reiniciar</button>
@@ -440,6 +443,7 @@
         let gridSize = 5;
         let cellSize = CANVAS_SIZE / gridSize;
         let hoveredLine = null;
+        let gameStarted = false;
 
         // =====================================================
         // FUNCIONES UI
@@ -508,7 +512,8 @@
 
         // Mostrar/ocultar controles de tamaño
         function updateSizeControlsVisibility() {
-            if (isHost && gameState && !gameState.gameStarted) {
+            // Mostrar controles de tamaño SIEMPRE si es el anfitrión y el juego NO ha comenzado
+            if (isHost && !gameStarted) {
                 sizeControls.classList.remove('hidden');
             } else {
                 sizeControls.classList.add('hidden');
@@ -516,7 +521,7 @@
         }
 
         // =====================================================
-        // DIBUJO DEL TABLERO
+        // DIBUJO DEL TABLERO (con puntos centrados)
         // =====================================================
         function drawBoard(state) {
             const size = state.gridSize || gridSize || 5;
@@ -559,7 +564,7 @@
                 }
             }
 
-            // Dibujar puntos
+            // Dibujar puntos (centrados)
             const dotSize = Math.max(4, Math.min(8, cSize * 0.08));
             for (let row = 0; row < size; row++) {
                 for (let col = 0; col < size; col++) {
@@ -568,7 +573,7 @@
                     ctx.beginPath();
                     ctx.arc(x, y, dotSize, 0, Math.PI * 2);
                     ctx.fillStyle = '#facc15';
-                    ctx.shadowBlur = 4;
+                    ctx.shadowBlur = 6;
                     ctx.shadowColor = '#facc1533';
                     ctx.fill();
                     ctx.shadowBlur = 0;
@@ -705,16 +710,18 @@
             socket.on('gameCreated', (data) => {
                 updateStatus(`✅ Sala ${gameId} creada`, 'connected');
                 isHost = true;
-                updateSizeControlsVisibility();
+                gameStarted = false;
+                sizeControls.classList.remove('hidden');
             });
 
             socket.on('gameState', (state) => {
                 gameState = state;
                 
-                // Actualizar isHost
                 if (state.isHost !== undefined) {
                     isHost = state.isHost;
                 }
+                
+                gameStarted = state.gameStarted || false;
                 
                 if (state.gameStarted) {
                     gameArea.classList.add('active');
@@ -744,7 +751,7 @@
                     drawBoard(state);
                 }
                 
-                // Actualizar visibilidad de controles
+                // Actualizar visibilidad de controles de tamaño
                 updateSizeControlsVisibility();
                 
                 if (isHost && state.gameStarted) {
@@ -784,9 +791,11 @@
             });
 
             socket.on('gameStarted', (data) => {
+                gameStarted = true;
                 addChatMessage('Sistema', `🎮 ¡La partida ha comenzado! (${data.gridSize}x${data.gridSize})`, true);
                 gameArea.classList.add('active');
                 waitingArea.classList.add('hidden');
+                sizeControls.classList.add('hidden');
                 if (gameState) {
                     gameState.gameStarted = true;
                     gameState.gridSize = data.gridSize;
@@ -797,7 +806,6 @@
                 }
                 if (isHost) {
                     hostControls.classList.remove('hidden');
-                    sizeControls.classList.add('hidden');
                 }
             });
 
@@ -842,12 +850,12 @@
                     addChatMessage('Sistema', '🔄 Partida reiniciada', true);
                     if (isHost) {
                         hostControls.classList.remove('hidden');
-                        sizeControls.classList.add('hidden');
                     }
                 }
             });
 
             socket.on('gameFinished', (data) => {
+                gameStarted = false;
                 addChatMessage('Sistema', `🏆 ${data.winner.name} ha ganado la partida!`, true);
                 launchConfetti();
                 setTimeout(() => {
@@ -916,6 +924,7 @@
             setupSocketListeners();
             socket.emit('createGame', { gameId, playerName, maxPlayers: 8 });
             isHost = true;
+            gameStarted = false;
             updateStatus(`🏠 Creando sala ${gameId}...`, 'waiting');
         }
 
@@ -1083,7 +1092,7 @@
         gridSizeInput.value = 5;
         renderPlayers([]);
         hostControls.classList.add('hidden');
-        sizeControls.classList.add('hidden');
+        sizeControls.classList.remove('hidden'); // Mostrar siempre al inicio
         updateSizeDisplay(5);
         drawBoard({ players: [], lines: [], boxes: [], gameStarted: false, gridSize: 5 });
 
