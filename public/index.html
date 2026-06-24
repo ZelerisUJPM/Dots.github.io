@@ -17,9 +17,13 @@
             margin: 0;
             padding: 20px;
             color: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .app {
-            max-width: 900px;
+            max-width: 1100px;
+            width: 100%;
             margin: 0 auto;
         }
         .title {
@@ -33,50 +37,50 @@
         .subtitle {
             text-align: center;
             color: #94a3b8;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-bottom: 15px;
         }
         .status-bar {
             text-align: center;
-            padding: 10px 16px;
+            padding: 8px 16px;
             border-radius: 40px;
             background: #1e293b;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: #94a3b8;
             font-weight: bold;
-            min-height: 48px;
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         .room-controls {
             display: flex;
             gap: 10px;
             justify-content: center;
             flex-wrap: wrap;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .room-controls input {
-            padding: 10px 18px;
+            padding: 8px 16px;
             border-radius: 40px;
             border: 2px solid #334155;
             background: #0f172a;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.95rem;
             outline: none;
-            min-width: 150px;
+            min-width: 140px;
             text-align: center;
         }
         .room-controls input:focus { border-color: #facc15; }
         .btn {
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 40px;
             border: none;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: 0.15s;
         }
@@ -89,82 +93,102 @@
         .btn-danger:hover { background: #ef4444; }
         .btn-secondary { background: #64748b; color: #fff; }
         .btn-secondary:hover { background: #475569; }
+        .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .game-layout {
-            display: grid;
-            grid-template-columns: 1fr 280px;
+            display: flex;
             gap: 20px;
+            align-items: flex-start;
+            justify-content: center;
         }
-        @media (max-width: 800px) {
-            .game-layout { grid-template-columns: 1fr; }
+        @media (max-width: 900px) {
+            .game-layout { flex-direction: column; align-items: center; }
         }
         .main-panel {
             background: rgba(0,0,0,0.4);
             border-radius: 24px;
             padding: 20px;
             border: 1px solid #334155;
+            flex: 1;
+            max-width: 650px;
+            min-width: 320px;
         }
         .side-panel {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            min-width: 220px;
+            max-width: 280px;
+            width: 100%;
+        }
+        @media (max-width: 900px) {
+            .side-panel { max-width: 100%; flex-direction: row; flex-wrap: wrap; }
+            .side-panel > div { flex: 1; min-width: 200px; }
         }
         .players-list {
             background: rgba(0,0,0,0.4);
             border-radius: 24px;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 1px solid #334155;
         }
         .players-list h3 {
             color: #facc15;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
             border-bottom: 1px solid #334155;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
         .player-item {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
+            padding: 4px 0;
             border-bottom: 1px solid #1e293b;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            align-items: center;
         }
         .player-item .name { color: #e2e8f0; }
         .player-item .name.host { color: #facc15; }
         .player-item .score { color: #4ade80; font-weight: bold; }
-        .player-item .turn { color: #facc15; font-weight: bold; }
+        .player-item .turn { color: #facc15; font-weight: bold; font-size: 0.7rem; }
         .player-item .color-dot {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            margin-right: 8px;
+            margin-right: 6px;
             border: 1px solid #334155;
+            flex-shrink: 0;
+        }
+        .player-item .player-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
         }
         .chat-box {
             background: rgba(0,0,0,0.4);
             border-radius: 24px;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 1px solid #334155;
-            flex: 1;
-            min-height: 150px;
             display: flex;
             flex-direction: column;
+            min-height: 140px;
         }
         .chat-box h3 {
             color: #facc15;
-            font-size: 0.9rem;
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
         }
         .chat-messages {
             flex: 1;
             overflow-y: auto;
-            max-height: 150px;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
+            max-height: 130px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
         }
         .chat-messages .msg {
-            padding: 4px 0;
+            padding: 3px 0;
             border-bottom: 1px solid #1e293b;
         }
         .chat-messages .msg .player { color: #facc15; font-weight: bold; }
@@ -172,23 +196,27 @@
         .chat-messages .msg .text { color: #e2e8f0; }
         .chat-input {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .chat-input input {
             flex: 1;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 40px;
             border: 2px solid #334155;
             background: #0f172a;
             color: #fff;
             outline: none;
+            font-size: 0.8rem;
+            min-width: 0;
         }
         .chat-input input:focus { border-color: #facc15; }
-        .chat-input button { padding: 8px 18px; font-size: 0.85rem; }
+        .chat-input button { padding: 6px 14px; font-size: 0.75rem; }
+        
         .canvas-container {
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%;
         }
         canvas {
             background: #0f172a;
@@ -196,16 +224,18 @@
             border: 2px solid #334155;
             cursor: pointer;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             aspect-ratio: 1 / 1;
+            touch-action: none;
         }
         .turn-indicator {
             text-align: center;
-            padding: 8px;
+            padding: 6px 12px;
             border-radius: 40px;
             background: #1e293b;
-            margin: 10px 0;
+            margin: 8px 0;
             font-weight: bold;
+            font-size: 0.95rem;
         }
         .turn-indicator .highlight { color: #facc15; }
         .confetti-container {
@@ -231,25 +261,51 @@
         }
         .host-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 10px;
         }
-        .host-controls .btn { flex: 1; min-width: 100px; }
+        .host-controls .btn { flex: 1; min-width: 80px; font-size: 0.8rem; padding: 6px 14px; }
         .hidden { display: none !important; }
-        .flex-center { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
         .waiting-area {
             text-align: center;
-            padding: 30px 0;
+            padding: 20px 0;
             color: #94a3b8;
         }
-        .waiting-area .icon { font-size: 3rem; color: #facc15; }
+        .waiting-area .icon { font-size: 2.5rem; color: #facc15; }
         .game-area { display: none; }
         .game-area.active { display: block; }
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .size-control label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+        }
+        .size-control input {
+            width: 60px;
+            padding: 4px 8px;
+            border-radius: 40px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            text-align: center;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .size-control input:focus { border-color: #facc15; }
+        .size-control .btn { font-size: 0.8rem; padding: 4px 14px; }
         @media (max-width: 600px) {
             .title { font-size: 1.5rem; }
-            .host-controls .btn { min-width: 80px; font-size: 0.8rem; padding: 8px 12px; }
+            .main-panel { padding: 12px; min-width: auto; }
+            .side-panel { min-width: auto; }
+            .host-controls .btn { min-width: 60px; font-size: 0.7rem; padding: 4px 10px; }
         }
     </style>
 </head>
@@ -276,7 +332,13 @@
                     ⏳ Esperando...
                 </div>
                 <div class="canvas-container">
-                    <canvas id="gameCanvas" width="500" height="500"></canvas>
+                    <canvas id="gameCanvas" width="550" height="550"></canvas>
+                </div>
+                <!-- Controles de tamaño (solo para el anfitrión antes de iniciar) -->
+                <div id="sizeControls" class="size-control hidden">
+                    <label>📐 Tamaño del tablero:</label>
+                    <input type="number" id="gridSizeInput" value="5" min="3" max="20">
+                    <button class="btn btn-secondary btn-sm" id="applySizeBtn">Aplicar</button>
                 </div>
                 <div id="hostControls" class="host-controls hidden">
                     <button class="btn btn-secondary" id="resetBtn">🔄 Reiniciar</button>
@@ -286,8 +348,11 @@
             <div id="waitingArea">
                 <div class="waiting-area">
                     <div class="icon">👥</div>
-                    <p style="margin-top:15px;">Esperando a que el anfitrión inicie la partida</p>
+                    <p style="margin-top:10px;">Esperando a que el anfitrión inicie la partida</p>
                     <p style="font-size:0.8rem;">Mínimo 2 jugadores</p>
+                    <div id="waitingSizeInfo" style="margin-top:8px;color:#64748b;font-size:0.8rem;">
+                        Tablero: <span id="waitingSizeDisplay">5</span>x<span id="waitingSizeDisplay2">5</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -302,7 +367,7 @@
                 <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input">
                     <input type="text" id="chatInput" placeholder="Mensaje..." maxlength="100">
-                    <button class="btn btn-primary" id="chatSendBtn" style="padding:6px 16px;font-size:0.8rem;">Enviar</button>
+                    <button class="btn btn-primary" id="chatSendBtn" style="padding:4px 12px;font-size:0.75rem;">Enviar</button>
                 </div>
             </div>
         </div>
@@ -330,25 +395,26 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const hostControls = document.getElementById('hostControls');
+        const sizeControls = document.getElementById('sizeControls');
+        const gridSizeInput = document.getElementById('gridSizeInput');
+        const applySizeBtn = document.getElementById('applySizeBtn');
         const resetBtn = document.getElementById('resetBtn');
         const finishBtn = document.getElementById('finishBtn');
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const chatSendBtn = document.getElementById('chatSendBtn');
         const confettiContainer = document.getElementById('confettiContainer');
+        const waitingSizeDisplay = document.getElementById('waitingSizeDisplay');
+        const waitingSizeDisplay2 = document.getElementById('waitingSizeDisplay2');
 
         // =====================================================
-        // CONSTANTES DEL JUEGO
+        // CONSTANTES
         // =====================================================
-        const GRID_SIZE = 5;
-        const DOT_SIZE = 8;
-        const LINE_WIDTH = 3;
-        const CELL_SIZE = canvas.width / GRID_SIZE;
-
         const PLAYER_COLORS = [
             '#facc15', '#4ade80', '#f87171', '#60a5fa',
             '#c084fc', '#fb923c', '#f472b6', '#22d3ee'
         ];
+        const CANVAS_SIZE = 550;
 
         // =====================================================
         // ESTADO
@@ -360,6 +426,9 @@
         let isHost = false;
         let gameState = null;
         let myPlayerId = null;
+        let gridSize = 5;
+        let cellSize = CANVAS_SIZE / gridSize;
+        let hoveredLine = null;
 
         // =====================================================
         // FUNCIONES UI
@@ -379,7 +448,7 @@
                 const color = PLAYER_COLORS[p.index % PLAYER_COLORS.length] || '#fff';
                 const isMyTurn = gameState && gameState.currentTurn === p.id;
                 div.innerHTML = `
-                    <span>
+                    <span class="player-info">
                         <span class="color-dot" style="background:${color};"></span>
                         <span class="name ${p.isHost ? 'host' : ''}">${p.isHost ? '👑 ' : ''}${p.name}</span>
                         ${isMyTurn ? ' <span class="turn">▶</span>' : ''}
@@ -401,6 +470,10 @@
             }
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            // Limitar mensajes
+            while (chatMessages.children.length > 50) {
+                chatMessages.removeChild(chatMessages.firstChild);
+            }
         }
 
         function updateTurnIndicator() {
@@ -418,55 +491,65 @@
             }
         }
 
+        function updateSizeDisplay(size) {
+            waitingSizeDisplay.textContent = size;
+            waitingSizeDisplay2.textContent = size;
+        }
+
         // =====================================================
         // DIBUJO DEL TABLERO
         // =====================================================
         function drawBoard(state) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const size = state.gridSize || gridSize;
+            const cSize = CANVAS_SIZE / size;
+            cellSize = cSize;
             
+            ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
             ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
             const players = state.players || [];
             const boxes = state.boxes || [];
             const lines = state.lines || [];
 
             // Dibujar cuadros cerrados
-            for (let row = 0; row < GRID_SIZE - 1; row++) {
-                for (let col = 0; col < GRID_SIZE - 1; col++) {
-                    const index = row * (GRID_SIZE - 1) + col;
+            for (let row = 0; row < size - 1; row++) {
+                for (let col = 0; col < size - 1; col++) {
+                    const index = row * (size - 1) + col;
                     const box = boxes[index];
                     if (box && box.owner !== null) {
                         const player = players.find(p => p.id === box.owner);
                         const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#334155';
-                        const x = col * CELL_SIZE + 2;
-                        const y = row * CELL_SIZE + 2;
-                        const size = CELL_SIZE - 4;
+                        const x = col * cSize + 2;
+                        const y = row * cSize + 2;
+                        const s = cSize - 4;
                         ctx.fillStyle = color + '44';
-                        ctx.fillRect(x, y, size, size);
+                        ctx.fillRect(x, y, s, s);
                         ctx.strokeStyle = color;
                         ctx.lineWidth = 2;
-                        ctx.strokeRect(x, y, size, size);
+                        ctx.strokeRect(x, y, s, s);
                         if (player) {
+                            const fontSize = Math.min(cSize * 0.45, 20);
                             ctx.fillStyle = '#fff';
-                            ctx.font = `bold ${CELL_SIZE * 0.5}px Arial`;
+                            ctx.font = `bold ${fontSize}px Arial`;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
-                            ctx.fillText(player.name.charAt(0).toUpperCase(), col * CELL_SIZE + CELL_SIZE/2, row * CELL_SIZE + CELL_SIZE/2);
+                            ctx.fillText(player.name.charAt(0).toUpperCase(), col * cSize + cSize/2, row * cSize + cSize/2);
                         }
                     }
                 }
             }
 
             // Dibujar puntos
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    const x = col * CELL_SIZE;
-                    const y = row * CELL_SIZE;
+            const dotSize = Math.max(4, Math.min(8, cSize * 0.08));
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size; col++) {
+                    const x = col * cSize;
+                    const y = row * cSize;
                     ctx.beginPath();
-                    ctx.arc(x, y, DOT_SIZE, 0, Math.PI * 2);
+                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
                     ctx.fillStyle = '#facc15';
-                    ctx.shadowBlur = 6;
+                    ctx.shadowBlur = 4;
                     ctx.shadowColor = '#facc1533';
                     ctx.fill();
                     ctx.shadowBlur = 0;
@@ -474,15 +557,16 @@
             }
 
             // Dibujar líneas horizontales
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE - 1; col++) {
-                    const index = row * (GRID_SIZE - 1) + col;
+            const lineWidth = Math.max(2, Math.min(4, cSize * 0.045));
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size - 1; col++) {
+                    const index = row * (size - 1) + col;
                     const line = lines[index];
                     if (line && line.placed) {
-                        const x1 = col * CELL_SIZE;
-                        const y1 = row * CELL_SIZE;
-                        const x2 = (col + 1) * CELL_SIZE;
-                        const y2 = row * CELL_SIZE;
+                        const x1 = col * cSize;
+                        const y1 = row * cSize;
+                        const x2 = (col + 1) * cSize;
+                        const y2 = row * cSize;
                         const owner = line.owner;
                         const player = players.find(p => p.id === owner);
                         const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#facc15';
@@ -490,7 +574,7 @@
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color;
-                        ctx.lineWidth = LINE_WIDTH + 2;
+                        ctx.lineWidth = lineWidth + 2;
                         ctx.shadowBlur = 4;
                         ctx.shadowColor = color + '44';
                         ctx.stroke();
@@ -500,15 +584,15 @@
             }
 
             // Dibujar líneas verticales
-            for (let row = 0; row < GRID_SIZE - 1; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    const index = (GRID_SIZE - 1) * GRID_SIZE + row * GRID_SIZE + col;
+            for (let row = 0; row < size - 1; row++) {
+                for (let col = 0; col < size; col++) {
+                    const index = (size - 1) * size + row * size + col;
                     const line = lines[index];
                     if (line && line.placed) {
-                        const x1 = col * CELL_SIZE;
-                        const y1 = row * CELL_SIZE;
-                        const x2 = col * CELL_SIZE;
-                        const y2 = (row + 1) * CELL_SIZE;
+                        const x1 = col * cSize;
+                        const y1 = row * cSize;
+                        const x2 = col * cSize;
+                        const y2 = (row + 1) * cSize;
                         const owner = line.owner;
                         const player = players.find(p => p.id === owner);
                         const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#facc15';
@@ -516,7 +600,7 @@
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color;
-                        ctx.lineWidth = LINE_WIDTH + 2;
+                        ctx.lineWidth = lineWidth + 2;
                         ctx.shadowBlur = 4;
                         ctx.shadowColor = color + '44';
                         ctx.stroke();
@@ -532,17 +616,19 @@
         function getLineAtPosition(mx, my) {
             if (!gameState) return null;
             const lines = gameState.lines || [];
-            const threshold = 12;
+            const size = gameState.gridSize || gridSize;
+            const cSize = CANVAS_SIZE / size;
+            const threshold = Math.max(10, cSize * 0.07);
 
-            for (let row = 0; row < GRID_SIZE; row++) {
-                for (let col = 0; col < GRID_SIZE - 1; col++) {
-                    const index = row * (GRID_SIZE - 1) + col;
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size - 1; col++) {
+                    const index = row * (size - 1) + col;
                     const line = lines[index];
                     if (line && line.placed) continue;
-                    const x1 = col * CELL_SIZE;
-                    const y1 = row * CELL_SIZE;
-                    const x2 = (col + 1) * CELL_SIZE;
-                    const y2 = row * CELL_SIZE;
+                    const x1 = col * cSize;
+                    const y1 = row * cSize;
+                    const x2 = (col + 1) * cSize;
+                    const y2 = row * cSize;
                     const dist = distanceToSegment(mx, my, x1, y1, x2, y2);
                     if (dist < threshold) {
                         return { type: 'horizontal', row, col, index };
@@ -550,15 +636,15 @@
                 }
             }
 
-            for (let row = 0; row < GRID_SIZE - 1; row++) {
-                for (let col = 0; col < GRID_SIZE; col++) {
-                    const index = (GRID_SIZE - 1) * GRID_SIZE + row * GRID_SIZE + col;
+            for (let row = 0; row < size - 1; row++) {
+                for (let col = 0; col < size; col++) {
+                    const index = (size - 1) * size + row * size + col;
                     const line = lines[index];
                     if (line && line.placed) continue;
-                    const x1 = col * CELL_SIZE;
-                    const y1 = row * CELL_SIZE;
-                    const x2 = col * CELL_SIZE;
-                    const y2 = (row + 1) * CELL_SIZE;
+                    const x1 = col * cSize;
+                    const y1 = row * cSize;
+                    const x2 = col * cSize;
+                    const y2 = (row + 1) * cSize;
                     const dist = distanceToSegment(mx, my, x1, y1, x2, y2);
                     if (dist < threshold) {
                         return { type: 'vertical', row, col, index };
@@ -599,6 +685,9 @@
 
             socket.on('gameCreated', () => {
                 updateStatus(`✅ Sala ${gameId} creada`, 'connected');
+                if (isHost) {
+                    sizeControls.classList.remove('hidden');
+                }
             });
 
             socket.on('gameState', (state) => {
@@ -606,9 +695,13 @@
                 if (state.gameStarted) {
                     gameArea.classList.add('active');
                     waitingArea.classList.add('hidden');
+                    sizeControls.classList.add('hidden');
                 } else {
                     gameArea.classList.remove('active');
                     waitingArea.classList.remove('hidden');
+                    if (isHost) {
+                        sizeControls.classList.remove('hidden');
+                    }
                 }
                 if (state.players) {
                     renderPlayers(state.players);
@@ -617,6 +710,11 @@
                         const me = state.players.find(p => p.name === playerName);
                         if (me) myPlayerId = me.id;
                     }
+                }
+                if (state.gridSize) {
+                    gridSize = state.gridSize;
+                    gridSizeInput.value = gridSize;
+                    updateSizeDisplay(gridSize);
                 }
                 if (state.gameStarted) {
                     updateTurnIndicator();
@@ -637,10 +735,11 @@
                         btn.id = 'startGameBtn';
                         btn.className = 'btn btn-success';
                         btn.style.width = '100%';
-                        btn.style.marginTop = '10px';
+                        btn.style.marginTop = '8px';
                         btn.innerHTML = '▶ Iniciar Partida';
                         btn.addEventListener('click', () => {
-                            socket.emit('startGame', { gameId });
+                            const size = parseInt(gridSizeInput.value) || 5;
+                            socket.emit('startGame', { gameId, gridSize: size });
                         });
                         document.getElementById('waitingArea').appendChild(btn);
                     }
@@ -659,12 +758,16 @@
                 }
             });
 
-            socket.on('gameStarted', () => {
-                addChatMessage('Sistema', '🎮 ¡La partida ha comenzado!', true);
+            socket.on('gameStarted', (data) => {
+                addChatMessage('Sistema', `🎮 ¡La partida ha comenzado! (${data.gridSize}x${data.gridSize})`, true);
                 gameArea.classList.add('active');
                 waitingArea.classList.add('hidden');
+                sizeControls.classList.add('hidden');
                 if (gameState) {
                     gameState.gameStarted = true;
+                    gameState.gridSize = data.gridSize;
+                    gridSize = data.gridSize;
+                    updateSizeDisplay(gridSize);
                     updateTurnIndicator();
                     drawBoard(gameState);
                 }
@@ -680,7 +783,7 @@
                     if (data.completedBoxes && data.completedBoxes.length > 0) {
                         const p = data.players.find(p => p.id === data.completedBoxes[0]?.owner);
                         if (p) {
-                            addChatMessage('Sistema', `📦 ${p.name} cerró un cuadro!`, true);
+                            addChatMessage('Sistema', `📦 ${p.name} cerró ${data.completedBoxes.length} cuadro(s)!`, true);
                         }
                     }
                     renderPlayers(data.players);
@@ -703,6 +806,9 @@
                     gameState.players = data.players;
                     gameState.currentTurn = data.firstTurn;
                     gameState.gameStarted = true;
+                    gameState.gridSize = data.gridSize;
+                    gridSize = data.gridSize;
+                    updateSizeDisplay(gridSize);
                     renderPlayers(data.players);
                     updateTurnIndicator();
                     drawBoard(gameState);
@@ -720,6 +826,7 @@
                     gameState.gameStarted = false;
                     gameArea.classList.remove('active');
                     waitingArea.classList.remove('hidden');
+                    if (isHost) sizeControls.classList.remove('hidden');
                 }
             });
 
@@ -791,6 +898,21 @@
             updateStatus(`🔗 Uniéndose a ${gameId}...`, 'waiting');
         }
 
+        applySizeBtn.addEventListener('click', () => {
+            const size = parseInt(gridSizeInput.value) || 5;
+            if (size < 3) { gridSizeInput.value = 3; return; }
+            if (size > 20) { gridSizeInput.value = 20; return; }
+            gridSize = size;
+            updateSizeDisplay(size);
+            if (socket && connected && isHost) {
+                socket.emit('updateGridSize', { gameId, gridSize: size });
+            }
+            if (gameState) {
+                gameState.gridSize = size;
+                drawBoard(gameState);
+            }
+        });
+
         // =====================================================
         // EVENTOS UI
         // =====================================================
@@ -858,8 +980,6 @@
         // =====================================================
         // CANVAS - HOVER PARA RESALTAR LÍNEAS
         // =====================================================
-        let hoveredLine = null;
-
         canvas.addEventListener('mousemove', (e) => {
             if (!gameState || !gameState.gameStarted) return;
             const rect = canvas.getBoundingClientRect();
@@ -878,28 +998,29 @@
                     const players = gameState.players || [];
                     const currentPlayer = players.find(p => p.id === gameState.currentTurn);
                     const color = currentPlayer ? PLAYER_COLORS[currentPlayer.index % PLAYER_COLORS.length] : '#facc15';
+                    const cSize = CANVAS_SIZE / (gameState.gridSize || gridSize);
                     ctx.shadowBlur = 0;
                     if (line.type === 'horizontal') {
-                        const x1 = line.col * CELL_SIZE;
-                        const y1 = line.row * CELL_SIZE;
-                        const x2 = (line.col + 1) * CELL_SIZE;
-                        const y2 = line.row * CELL_SIZE;
+                        const x1 = line.col * cSize;
+                        const y1 = line.row * cSize;
+                        const x2 = (line.col + 1) * cSize;
+                        const y2 = line.row * cSize;
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color + '88';
-                        ctx.lineWidth = LINE_WIDTH + 6;
+                        ctx.lineWidth = Math.max(4, cSize * 0.07);
                         ctx.stroke();
                     } else {
-                        const x1 = line.col * CELL_SIZE;
-                        const y1 = line.row * CELL_SIZE;
-                        const x2 = line.col * CELL_SIZE;
-                        const y2 = (line.row + 1) * CELL_SIZE;
+                        const x1 = line.col * cSize;
+                        const y1 = line.row * cSize;
+                        const x2 = line.col * cSize;
+                        const y2 = (line.row + 1) * cSize;
                         ctx.beginPath();
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color + '88';
-                        ctx.lineWidth = LINE_WIDTH + 6;
+                        ctx.lineWidth = Math.max(4, cSize * 0.07);
                         ctx.stroke();
                     }
                 }
@@ -919,9 +1040,12 @@
         // =====================================================
         updateStatus('🔌 Conéctate al servidor', 'waiting');
         roomInput.value = 'BOXES';
+        gridSizeInput.value = 5;
         renderPlayers([]);
         hostControls.classList.add('hidden');
-        drawBoard({ players: [], lines: [], boxes: [], gameStarted: false });
+        sizeControls.classList.add('hidden');
+        updateSizeDisplay(5);
+        drawBoard({ players: [], lines: [], boxes: [], gameStarted: false, gridSize: 5 });
 
         console.log('🔄 Dots and Boxes iniciado correctamente');
     })();
