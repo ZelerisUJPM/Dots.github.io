@@ -283,12 +283,12 @@
             align-items: center;
             gap: 10px;
             justify-content: center;
-            margin-top: 8px;
             flex-wrap: wrap;
             padding: 8px 12px;
             background: #0f172a;
             border-radius: 40px;
             border: 1px solid #334155;
+            margin-bottom: 10px;
         }
         .size-control label {
             color: #94a3b8;
@@ -339,9 +339,9 @@
 
     <div class="game-layout">
         <div class="main-panel">
-            <!-- Controles de tamaño (siempre visibles para el anfitrión antes de empezar) -->
+            <!-- Controles de tamaño -->
             <div id="sizeControls" class="size-control">
-                <label>📐 Tamaño del tablero:</label>
+                <label>📐 Tamaño:</label>
                 <input type="number" id="gridSizeInput" value="5" min="3" max="20">
                 <button class="btn btn-secondary btn-sm" id="applySizeBtn">Aplicar</button>
                 <span class="size-info" id="sizeInfo">(3x3 a 20x20)</span>
@@ -510,18 +510,8 @@
             waitingSizeDisplay2.textContent = size;
         }
 
-        // Mostrar/ocultar controles de tamaño
-        function updateSizeControlsVisibility() {
-            // Mostrar controles de tamaño SIEMPRE si es el anfitrión y el juego NO ha comenzado
-            if (isHost && !gameStarted) {
-                sizeControls.classList.remove('hidden');
-            } else {
-                sizeControls.classList.add('hidden');
-            }
-        }
-
         // =====================================================
-        // DIBUJO DEL TABLERO (con puntos centrados)
+        // DIBUJO DEL TABLERO (PUNTOS CENTRADOS Y MÁS GRANDES)
         // =====================================================
         function drawBoard(state) {
             const size = state.gridSize || gridSize || 5;
@@ -564,24 +554,43 @@
                 }
             }
 
-            // Dibujar puntos (centrados)
-            const dotSize = Math.max(4, Math.min(8, cSize * 0.08));
+            // Dibujar puntos (más grandes y centrados en las intersecciones)
+            const dotSize = Math.max(6, Math.min(12, cSize * 0.1));
             for (let row = 0; row < size; row++) {
                 for (let col = 0; col < size; col++) {
+                    // Calcular posición centrada en la intersección
                     const x = col * cSize;
                     const y = row * cSize;
+                    
+                    // Sombra para dar profundidad
+                    ctx.shadowBlur = 8;
+                    ctx.shadowColor = '#facc1544';
+                    
+                    // Círculo exterior (brillo)
+                    const gradient = ctx.createRadialGradient(x - 2, y - 2, 0, x, y, dotSize + 2);
+                    gradient.addColorStop(0, '#facc15');
+                    gradient.addColorStop(0.7, '#f59e0b');
+                    gradient.addColorStop(1, '#b45309');
+                    
                     ctx.beginPath();
-                    ctx.arc(x, y, dotSize, 0, Math.PI * 2);
-                    ctx.fillStyle = '#facc15';
-                    ctx.shadowBlur = 6;
-                    ctx.shadowColor = '#facc1533';
+                    ctx.arc(x, y, dotSize + 1, 0, Math.PI * 2);
+                    ctx.fillStyle = gradient;
                     ctx.fill();
+                    
+                    // Punto interior (más brillante)
+                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = '#facc1533';
+                    ctx.beginPath();
+                    ctx.arc(x - 1, y - 1, dotSize * 0.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fffbe6';
+                    ctx.fill();
+                    
                     ctx.shadowBlur = 0;
                 }
             }
 
             // Dibujar líneas horizontales
-            const lineWidth = Math.max(2, Math.min(4, cSize * 0.045));
+            const lineWidth = Math.max(2, Math.min(5, cSize * 0.05));
             for (let row = 0; row < size; row++) {
                 for (let col = 0; col < size - 1; col++) {
                     const index = row * (size - 1) + col;
@@ -599,7 +608,7 @@
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color;
                         ctx.lineWidth = lineWidth + 2;
-                        ctx.shadowBlur = 4;
+                        ctx.shadowBlur = 6;
                         ctx.shadowColor = color + '44';
                         ctx.stroke();
                         ctx.shadowBlur = 0;
@@ -625,7 +634,7 @@
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color;
                         ctx.lineWidth = lineWidth + 2;
-                        ctx.shadowBlur = 4;
+                        ctx.shadowBlur = 6;
                         ctx.shadowColor = color + '44';
                         ctx.stroke();
                         ctx.shadowBlur = 0;
@@ -642,7 +651,7 @@
             const lines = gameState.lines || [];
             const size = gameState.gridSize || gridSize || 5;
             const cSize = CANVAS_SIZE / size;
-            const threshold = Math.max(10, cSize * 0.07);
+            const threshold = Math.max(12, cSize * 0.08);
 
             for (let row = 0; row < size; row++) {
                 for (let col = 0; col < size - 1; col++) {
@@ -707,7 +716,7 @@
                 connected = false;
             });
 
-            socket.on('gameCreated', (data) => {
+            socket.on('gameCreated', () => {
                 updateStatus(`✅ Sala ${gameId} creada`, 'connected');
                 isHost = true;
                 gameStarted = false;
@@ -750,9 +759,6 @@
                     updateTurnIndicator();
                     drawBoard(state);
                 }
-                
-                // Actualizar visibilidad de controles de tamaño
-                updateSizeControlsVisibility();
                 
                 if (isHost && state.gameStarted) {
                     hostControls.classList.remove('hidden');
@@ -1058,7 +1064,7 @@
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color + '88';
-                        ctx.lineWidth = Math.max(4, cSize * 0.07);
+                        ctx.lineWidth = Math.max(5, cSize * 0.07);
                         ctx.stroke();
                     } else {
                         const x1 = line.col * cSize;
@@ -1069,7 +1075,7 @@
                         ctx.moveTo(x1, y1);
                         ctx.lineTo(x2, y2);
                         ctx.strokeStyle = color + '88';
-                        ctx.lineWidth = Math.max(4, cSize * 0.07);
+                        ctx.lineWidth = Math.max(5, cSize * 0.07);
                         ctx.stroke();
                     }
                 }
@@ -1092,7 +1098,7 @@
         gridSizeInput.value = 5;
         renderPlayers([]);
         hostControls.classList.add('hidden');
-        sizeControls.classList.remove('hidden'); // Mostrar siempre al inicio
+        sizeControls.classList.remove('hidden');
         updateSizeDisplay(5);
         drawBoard({ players: [], lines: [], boxes: [], gameStarted: false, gridSize: 5 });
 
