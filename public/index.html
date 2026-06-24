@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Dots and Boxes - Online</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background: linear-gradient(135deg, #0a0f1e 0%, #1a2a3a 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            color: #e2e8f0;
+        }
+        .app {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            color: #facc15;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        .status-bar {
+            text-align: center;
+            padding: 10px 16px;
+            border-radius: 40px;
+            background: #1e293b;
+            margin-bottom: 15px;
+            color: #94a3b8;
+            font-weight: bold;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+        }
+        .room-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .room-controls input {
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            min-width: 150px;
+            text-align: center;
+        }
+        .room-controls input:focus { border-color: #facc15; }
+        .btn {
+            padding: 10px 25px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary { background: #facc15; color: #0f172a; }
+        .btn-primary:hover { background: #eab308; }
+        .btn-success { background: #4ade80; color: #0f172a; }
+        .btn-success:hover { background: #22c55e; }
+        .btn-danger { background: #f87171; color: #0f172a; }
+        .btn-danger:hover { background: #ef4444; }
+        .btn-secondary { background: #64748b; color: #fff; }
+        .btn-secondary:hover { background: #475569; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 20px;
+        }
+        @media (max-width: 800px) {
+            .game-layout { grid-template-columns: 1fr; }
+        }
+        .main-panel {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .players-list {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 16px 20px;
+            border: 1px solid #334155;
+        }
+        .players-list h3 {
+            color: #facc15;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+        .player-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 0.9rem;
+        }
+        .player-item .name { color: #e2e8f0; }
+        .player-item .name.host { color: #facc15; }
+        .player-item .score { color: #4ade80; font-weight: bold; }
+        .player-item .turn { color: #facc15; font-weight: bold; }
+        .player-item .color-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 1px solid #334155;
+        }
+        .chat-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 24px;
+            padding: 16px 20px;
+            border: 1px solid #334155;
+            flex: 1;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-box h3 {
+            color: #facc15;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 150px;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        .chat-messages .msg {
+            padding: 4px 0;
+            border-bottom: 1px solid #1e293b;
+        }
+        .chat-messages .msg .player { color: #facc15; font-weight: bold; }
+        .chat-messages .msg .system { color: #60a5fa; font-style: italic; }
+        .chat-messages .msg .text { color: #e2e8f0; }
+        .chat-input {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 2px solid #334155;
+            background: #0f172a;
+            color: #fff;
+            outline: none;
+        }
+        .chat-input input:focus { border-color: #facc15; }
+        .chat-input button { padding: 8px 18px; font-size: 0.85rem; }
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        canvas {
+            background: #0f172a;
+            border-radius: 16px;
+            border: 2px solid #334155;
+            cursor: pointer;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+        }
+        .turn-indicator {
+            text-align: center;
+            padding: 8px;
+            border-radius: 40px;
+            background: #1e293b;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .turn-indicator .highlight { color: #facc15; }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+            100% { opacity: 0; transform: translateY(105vh) rotate(720deg); }
+        }
+        .host-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .host-controls .btn { flex: 1; min-width: 100px; }
+        .hidden { display: none !important; }
+        .flex-center { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .waiting-area {
+            text-align: center;
+            padding: 30px 0;
+            color: #94a3b8;
+        }
+        .waiting-area .icon { font-size: 3rem; color: #facc15; }
+        .game-area { display: none; }
+        .game-area.active { display: block; }
+        @media (max-width: 600px) {
+            .title { font-size: 1.5rem; }
+            .host-controls .btn { min-width: 80px; font-size: 0.8rem; padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="title">⬛ DOTS & BOXES</div>
+    <div class="subtitle">🎯 2 a 8 jugadores · Cierra cuadros y gana</div>
+    
+    <div class="status-bar" id="statusBar">
+        <span class="waiting">🔌 Conéctate al servidor</span>
+    </div>
+
+    <div class="room-controls">
+        <input type="text" id="roomInput" placeholder="Código de sala" value="BOXES" maxlength="20">
+        <button class="btn btn-success" id="createBtn">➕ Crear Sala</button>
+        <button class="btn btn-primary" id="joinBtn">🔗 Unirse</button>
+    </div>
+
+    <div class="game-layout">
+        <div class="main-panel">
+            <div id="gameArea" class="game-area">
+                <div class="turn-indicator" id="turnIndicator">
+                    ⏳ Esperando...
+                </div>
+                <div class="canvas-container">
+                    <canvas id="gameCanvas" width="500" height="500"></canvas>
+                </div>
+                <div id="hostControls" class="host-controls hidden">
+                    <button class="btn btn-secondary" id="resetBtn">🔄 Reiniciar</button>
+                    <button class="btn btn-danger" id="finishBtn">🏁 Finalizar</button>
+                </div>
+            </div>
+            <div id="waitingArea">
+                <div class="waiting-area">
+                    <div class="icon">👥</div>
+                    <p style="margin-top:15px;">Esperando a que el anfitrión inicie la partida</p>
+                    <p style="font-size:0.8rem;">Mínimo 2 jugadores</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-panel">
+            <div class="players-list">
+                <h3>👥 Jugadores <span id="playerCount">0</span>/<span id="maxPlayersDisplay">8</span></h3>
+                <div id="playersList"></div>
+            </div>
+            <div class="chat-box">
+                <h3>💬 Chat</h3>
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Mensaje..." maxlength="100">
+                    <button class="btn btn-primary" id="chatSendBtn" style="padding:6px 16px;font-size:0.8rem;">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script>
+    (function() {
+        // =====================================================
+        // DOM ELEMENTS
+        // =====================================================
+        const statusBar = document.getElementById('statusBar');
+        const roomInput = document.getElementById('roomInput');
+        const createBtn = document.getElementById('createBtn');
+        const joinBtn = document.getElementById('joinBtn');
+        const gameArea = document.getElementById('gameArea');
+        const waitingArea = document.getElementById('waitingArea');
+        const playersList = document.getElementById('playersList');
+        const playerCount = document.getElementById('playerCount');
+        const maxPlayersDisplay = document.getElementById('maxPlayersDisplay');
+        const turnIndicator = document.getElementById('turnIndicator');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const hostControls = document.getElementById('hostControls');
+        const resetBtn = document.getElementById('resetBtn');
+        const finishBtn = document.getElementById('finishBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const confettiContainer = document.getElementById('confettiContainer');
+
+        // =====================================================
+        // CONSTANTES DEL JUEGO
+        // =====================================================
+        const GRID_SIZE = 5;
+        const DOT_SIZE = 8;
+        const LINE_WIDTH = 3;
+        const CELL_SIZE = canvas.width / GRID_SIZE;
+
+        const PLAYER_COLORS = [
+            '#facc15', '#4ade80', '#f87171', '#60a5fa',
+            '#c084fc', '#fb923c', '#f472b6', '#22d3ee'
+        ];
+
+        // =====================================================
+        // ESTADO
+        // =====================================================
+        let socket = null;
+        let gameId = '';
+        let playerName = '';
+        let connected = false;
+        let isHost = false;
+        let gameState = null;
+        let myPlayerId = null;
+
+        // =====================================================
+        // FUNCIONES UI
+        // =====================================================
+        function updateStatus(message, type) {
+            const icons = { 'connected': '🟢', 'waiting': '🟡', 'error': '🔴', 'playing': '🎮', 'ready': '🎯' };
+            statusBar.innerHTML = `${icons[type] || '📌'} ${message}`;
+            statusBar.style.color = type === 'error' ? '#f87171' : type === 'connected' ? '#4ade80' : '#94a3b8';
+        }
+
+        function renderPlayers(players) {
+            playersList.innerHTML = '';
+            if (!players) return;
+            players.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'player-item';
+                const color = PLAYER_COLORS[p.index % PLAYER_COLORS.length] || '#fff';
+                const isMyTurn = gameState && gameState.currentTurn === p.id;
+                div.innerHTML = `
+                    <span>
+                        <span class="color-dot" style="background:${color};"></span>
+                        <span class="name ${p.isHost ? 'host' : ''}">${p.isHost ? '👑 ' : ''}${p.name}</span>
+                        ${isMyTurn ? ' <span class="turn">▶</span>' : ''}
+                    </span>
+                    <span class="score">${p.score || 0}</span>
+                `;
+                playersList.appendChild(div);
+            });
+            playerCount.textContent = players.filter(p => p.connected).length;
+        }
+
+        function addChatMessage(player, message, system) {
+            const div = document.createElement('div');
+            div.className = 'msg';
+            if (system) {
+                div.innerHTML = `<span class="system">${message}</span>`;
+            } else {
+                div.innerHTML = `<span class="player">${player}:</span> <span class="text">${message}</span>`;
+            }
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function updateTurnIndicator() {
+            if (!gameState) return;
+            const players = gameState.players || [];
+            const currentPlayer = players.find(p => p.id === gameState.currentTurn);
+            if (currentPlayer) {
+                const color = PLAYER_COLORS[currentPlayer.index % PLAYER_COLORS.length] || '#fff';
+                turnIndicator.innerHTML = `
+                    <span class="highlight" style="color:${color};">${currentPlayer.name}</span>
+                    <span style="color:#94a3b8;">está jugando...</span>
+                `;
+            } else {
+                turnIndicator.innerHTML = '⏳ Esperando...';
+            }
+        }
+
+        // =====================================================
+        // DIBUJO DEL TABLERO
+        // =====================================================
+        function drawBoard(state) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const players = state.players || [];
+            const boxes = state.boxes || [];
+            const lines = state.lines || [];
+
+            // Dibujar cuadros cerrados
+            for (let row = 0; row < GRID_SIZE - 1; row++) {
+                for (let col = 0; col < GRID_SIZE - 1; col++) {
+                    const index = row * (GRID_SIZE - 1) + col;
+                    const box = boxes[index];
+                    if (box && box.owner !== null) {
+                        const player = players.find(p => p.id === box.owner);
+                        const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#334155';
+                        const x = col * CELL_SIZE + 2;
+                        const y = row * CELL_SIZE + 2;
+                        const size = CELL_SIZE - 4;
+                        ctx.fillStyle = color + '44';
+                        ctx.fillRect(x, y, size, size);
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, y, size, size);
+                        if (player) {
+                            ctx.fillStyle = '#fff';
+                            ctx.font = `bold ${CELL_SIZE * 0.5}px Arial`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(player.name.charAt(0).toUpperCase(), col * CELL_SIZE + CELL_SIZE/2, row * CELL_SIZE + CELL_SIZE/2);
+                        }
+                    }
+                }
+            }
+
+            // Dibujar puntos
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const x = col * CELL_SIZE;
+                    const y = row * CELL_SIZE;
+                    ctx.beginPath();
+                    ctx.arc(x, y, DOT_SIZE, 0, Math.PI * 2);
+                    ctx.fillStyle = '#facc15';
+                    ctx.shadowBlur = 6;
+                    ctx.shadowColor = '#facc1533';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // Dibujar líneas horizontales
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 1; col++) {
+                    const index = row * (GRID_SIZE - 1) + col;
+                    const line = lines[index];
+                    if (line && line.placed) {
+                        const x1 = col * CELL_SIZE;
+                        const y1 = row * CELL_SIZE;
+                        const x2 = (col + 1) * CELL_SIZE;
+                        const y2 = row * CELL_SIZE;
+                        const owner = line.owner;
+                        const player = players.find(p => p.id === owner);
+                        const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#facc15';
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = LINE_WIDTH + 2;
+                        ctx.shadowBlur = 4;
+                        ctx.shadowColor = color + '44';
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+
+            // Dibujar líneas verticales
+            for (let row = 0; row < GRID_SIZE - 1; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const index = (GRID_SIZE - 1) * GRID_SIZE + row * GRID_SIZE + col;
+                    const line = lines[index];
+                    if (line && line.placed) {
+                        const x1 = col * CELL_SIZE;
+                        const y1 = row * CELL_SIZE;
+                        const x2 = col * CELL_SIZE;
+                        const y2 = (row + 1) * CELL_SIZE;
+                        const owner = line.owner;
+                        const player = players.find(p => p.id === owner);
+                        const color = player ? PLAYER_COLORS[player.index % PLAYER_COLORS.length] : '#facc15';
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = LINE_WIDTH + 2;
+                        ctx.shadowBlur = 4;
+                        ctx.shadowColor = color + '44';
+                        ctx.stroke();
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            }
+        }
+
+        // =====================================================
+        // DETECCIÓN DE CLIC EN LÍNEAS
+        // =====================================================
+        function getLineAtPosition(mx, my) {
+            if (!gameState) return null;
+            const lines = gameState.lines || [];
+            const threshold = 12;
+
+            for (let row = 0; row < GRID_SIZE; row++) {
+                for (let col = 0; col < GRID_SIZE - 1; col++) {
+                    const index = row * (GRID_SIZE - 1) + col;
+                    const line = lines[index];
+                    if (line && line.placed) continue;
+                    const x1 = col * CELL_SIZE;
+                    const y1 = row * CELL_SIZE;
+                    const x2 = (col + 1) * CELL_SIZE;
+                    const y2 = row * CELL_SIZE;
+                    const dist = distanceToSegment(mx, my, x1, y1, x2, y2);
+                    if (dist < threshold) {
+                        return { type: 'horizontal', row, col, index };
+                    }
+                }
+            }
+
+            for (let row = 0; row < GRID_SIZE - 1; row++) {
+                for (let col = 0; col < GRID_SIZE; col++) {
+                    const index = (GRID_SIZE - 1) * GRID_SIZE + row * GRID_SIZE + col;
+                    const line = lines[index];
+                    if (line && line.placed) continue;
+                    const x1 = col * CELL_SIZE;
+                    const y1 = row * CELL_SIZE;
+                    const x2 = col * CELL_SIZE;
+                    const y2 = (row + 1) * CELL_SIZE;
+                    const dist = distanceToSegment(mx, my, x1, y1, x2, y2);
+                    if (dist < threshold) {
+                        return { type: 'vertical', row, col, index };
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        function distanceToSegment(px, py, x1, y1, x2, y2) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const lenSq = dx * dx + dy * dy;
+            if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+            let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+            t = Math.max(0, Math.min(1, t));
+            const projX = x1 + t * dx;
+            const projY = y1 + t * dy;
+            return Math.hypot(px - projX, py - projY);
+        }
+
+        // =====================================================
+        // SOCKET
+        // =====================================================
+        function setupSocketListeners() {
+            if (!socket) return;
+
+            socket.on('connect', () => {
+                updateStatus('Conectado al servidor', 'connected');
+                connected = true;
+            });
+
+            socket.on('disconnect', () => {
+                updateStatus('Desconectado', 'error');
+                connected = false;
+            });
+
+            socket.on('gameCreated', () => {
+                updateStatus(`✅ Sala ${gameId} creada`, 'connected');
+            });
+
+            socket.on('gameState', (state) => {
+                gameState = state;
+                if (state.gameStarted) {
+                    gameArea.classList.add('active');
+                    waitingArea.classList.add('hidden');
+                } else {
+                    gameArea.classList.remove('active');
+                    waitingArea.classList.remove('hidden');
+                }
+                if (state.players) {
+                    renderPlayers(state.players);
+                    maxPlayersDisplay.textContent = state.maxPlayers || 8;
+                    if (socket && !myPlayerId) {
+                        const me = state.players.find(p => p.name === playerName);
+                        if (me) myPlayerId = me.id;
+                    }
+                }
+                if (state.gameStarted) {
+                    updateTurnIndicator();
+                    drawBoard(state);
+                }
+                if (state.isHost !== undefined) {
+                    isHost = state.isHost;
+                    if (isHost && state.gameStarted) {
+                        hostControls.classList.remove('hidden');
+                    } else {
+                        hostControls.classList.add('hidden');
+                    }
+                }
+                const startBtn = document.getElementById('startGameBtn');
+                if (isHost && !state.gameStarted && state.players && state.players.filter(p => p.connected).length >= 2) {
+                    if (!document.getElementById('startGameBtn')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'startGameBtn';
+                        btn.className = 'btn btn-success';
+                        btn.style.width = '100%';
+                        btn.style.marginTop = '10px';
+                        btn.innerHTML = '▶ Iniciar Partida';
+                        btn.addEventListener('click', () => {
+                            socket.emit('startGame', { gameId });
+                        });
+                        document.getElementById('waitingArea').appendChild(btn);
+                    }
+                } else {
+                    const oldBtn = document.getElementById('startGameBtn');
+                    if (oldBtn) oldBtn.remove();
+                }
+            });
+
+            socket.on('playersUpdate', (players) => {
+                renderPlayers(players);
+                playerCount.textContent = players.filter(p => p.connected).length;
+                if (gameState) {
+                    gameState.players = players;
+                    if (gameState.gameStarted) drawBoard(gameState);
+                }
+            });
+
+            socket.on('gameStarted', () => {
+                addChatMessage('Sistema', '🎮 ¡La partida ha comenzado!', true);
+                gameArea.classList.add('active');
+                waitingArea.classList.add('hidden');
+                if (gameState) {
+                    gameState.gameStarted = true;
+                    updateTurnIndicator();
+                    drawBoard(gameState);
+                }
+                if (isHost) hostControls.classList.remove('hidden');
+            });
+
+            socket.on('linePlaced', (data) => {
+                if (gameState) {
+                    gameState.lines = data.lines;
+                    gameState.boxes = data.boxes;
+                    gameState.currentTurn = data.nextTurn;
+                    gameState.players = data.players;
+                    if (data.completedBoxes && data.completedBoxes.length > 0) {
+                        const p = data.players.find(p => p.id === data.completedBoxes[0]?.owner);
+                        if (p) {
+                            addChatMessage('Sistema', `📦 ${p.name} cerró un cuadro!`, true);
+                        }
+                    }
+                    renderPlayers(data.players);
+                    updateTurnIndicator();
+                    drawBoard(gameState);
+                    if (data.gameOver) {
+                        addChatMessage('Sistema', `🏆 ${data.winner.name} ha ganado la partida!`, true);
+                        launchConfetti();
+                        setTimeout(() => {
+                            alert(`🏆 ${data.winner.name} ha ganado con ${data.winner.score} puntos!`);
+                        }, 500);
+                    }
+                }
+            });
+
+            socket.on('gameReset', (data) => {
+                if (gameState) {
+                    gameState.lines = data.lines;
+                    gameState.boxes = data.boxes;
+                    gameState.players = data.players;
+                    gameState.currentTurn = data.firstTurn;
+                    gameState.gameStarted = true;
+                    renderPlayers(data.players);
+                    updateTurnIndicator();
+                    drawBoard(gameState);
+                    addChatMessage('Sistema', '🔄 Partida reiniciada', true);
+                }
+            });
+
+            socket.on('gameFinished', (data) => {
+                addChatMessage('Sistema', `🏆 ${data.winner.name} ha ganado la partida!`, true);
+                launchConfetti();
+                setTimeout(() => {
+                    alert(`🏆 ${data.winner.name} ha ganado con ${data.winner.score} puntos!`);
+                }, 500);
+                if (gameState) {
+                    gameState.gameStarted = false;
+                    gameArea.classList.remove('active');
+                    waitingArea.classList.remove('hidden');
+                }
+            });
+
+            socket.on('chatMessage', (data) => {
+                if (data.system) {
+                    addChatMessage('Sistema', data.message, true);
+                } else {
+                    addChatMessage(data.player, data.message, false);
+                }
+            });
+
+            socket.on('error', (msg) => {
+                updateStatus('❌ ' + msg, 'error');
+                setTimeout(() => {
+                    if (connected) updateStatus('Conectado', 'connected');
+                }, 3000);
+            });
+        }
+
+        // =====================================================
+        // CONFETI
+        // =====================================================
+        function launchConfetti() {
+            const colors = ['#facc15', '#4ade80', '#f87171', '#60a5fa', '#c084fc', '#fb923c', '#f472b6', '#22d3ee'];
+            confettiContainer.innerHTML = '';
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.width = (Math.random() * 8 + 4) + 'px';
+                confetti.style.height = (Math.random() * 8 + 4) + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = (Math.random() * 2) + 's';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => { confettiContainer.innerHTML = ''; }, 5000);
+        }
+
+        // =====================================================
+        // ACCIONES
+        // =====================================================
+        function createGame() {
+            gameId = roomInput.value.trim().toUpperCase() || 'BOXES';
+            playerName = prompt('Ingresa tu nombre:', 'Anfitrión') || 'Anfitrión';
+            if (!playerName) return;
+            const serverUrl = window.location.origin;
+            if (socket && connected) socket.disconnect();
+            socket = io(serverUrl);
+            setupSocketListeners();
+            socket.emit('createGame', { gameId, playerName, maxPlayers: 8 });
+            isHost = true;
+            updateStatus(`🏠 Creando sala ${gameId}...`, 'waiting');
+        }
+
+        function joinGame() {
+            gameId = roomInput.value.trim().toUpperCase() || 'BOXES';
+            playerName = prompt('Ingresa tu nombre:', 'Jugador') || 'Jugador';
+            if (!playerName) return;
+            const serverUrl = window.location.origin;
+            if (socket && connected) socket.disconnect();
+            socket = io(serverUrl);
+            setupSocketListeners();
+            socket.emit('joinGame', { gameId, playerName });
+            isHost = false;
+            updateStatus(`🔗 Uniéndose a ${gameId}...`, 'waiting');
+        }
+
+        // =====================================================
+        // EVENTOS UI
+        // =====================================================
+        createBtn.addEventListener('click', createGame);
+        joinBtn.addEventListener('click', joinGame);
+
+        roomInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (confirm('¿Crear sala o unirte? (OK=Crear, Cancel=Unirse)')) {
+                    createGame();
+                } else {
+                    joinGame();
+                }
+            }
+        });
+
+        chatSendBtn.addEventListener('click', () => {
+            const msg = chatInput.value.trim();
+            if (msg && socket && connected) {
+                socket.emit('chatMessage', { gameId, message: msg });
+                chatInput.value = '';
+            }
+        });
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') chatSendBtn.click();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (socket && connected && isHost) {
+                if (confirm('¿Reiniciar la partida?')) {
+                    socket.emit('resetGame', { gameId });
+                }
+            }
+        });
+
+        finishBtn.addEventListener('click', () => {
+            if (socket && connected && isHost) {
+                if (confirm('¿Finalizar la partida?')) {
+                    socket.emit('finishGame', { gameId });
+                }
+            }
+        });
+
+        // =====================================================
+        // CANVAS - CLIC PARA COLOCAR LÍNEA
+        // =====================================================
+        canvas.addEventListener('click', (e) => {
+            if (!gameState || !gameState.gameStarted) return;
+            if (!socket || !connected) return;
+            if (gameState.currentTurn !== myPlayerId) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const mx = (e.clientX - rect.left) * scaleX;
+            const my = (e.clientY - rect.top) * scaleY;
+
+            const line = getLineAtPosition(mx, my);
+            if (line) {
+                socket.emit('placeLine', { gameId, line });
+            }
+        });
+
+        // =====================================================
+        // CANVAS - HOVER PARA RESALTAR LÍNEAS
+        // =====================================================
+        let hoveredLine = null;
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!gameState || !gameState.gameStarted) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const mx = (e.clientX - rect.left) * scaleX;
+            const my = (e.clientY - rect.top) * scaleY;
+
+            const line = getLineAtPosition(mx, my);
+            if (line && line.index !== hoveredLine) {
+                hoveredLine = line.index;
+                drawBoard(gameState);
+                const lines = gameState.lines || [];
+                const l = lines[line.index];
+                if (l && !l.placed) {
+                    const players = gameState.players || [];
+                    const currentPlayer = players.find(p => p.id === gameState.currentTurn);
+                    const color = currentPlayer ? PLAYER_COLORS[currentPlayer.index % PLAYER_COLORS.length] : '#facc15';
+                    ctx.shadowBlur = 0;
+                    if (line.type === 'horizontal') {
+                        const x1 = line.col * CELL_SIZE;
+                        const y1 = line.row * CELL_SIZE;
+                        const x2 = (line.col + 1) * CELL_SIZE;
+                        const y2 = line.row * CELL_SIZE;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.strokeStyle = color + '88';
+                        ctx.lineWidth = LINE_WIDTH + 6;
+                        ctx.stroke();
+                    } else {
+                        const x1 = line.col * CELL_SIZE;
+                        const y1 = line.row * CELL_SIZE;
+                        const x2 = line.col * CELL_SIZE;
+                        const y2 = (line.row + 1) * CELL_SIZE;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.strokeStyle = color + '88';
+                        ctx.lineWidth = LINE_WIDTH + 6;
+                        ctx.stroke();
+                    }
+                }
+            } else if (!line) {
+                hoveredLine = null;
+                if (gameState) drawBoard(gameState);
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            hoveredLine = null;
+            if (gameState) drawBoard(gameState);
+        });
+
+        // =====================================================
+        // INICIALIZACIÓN
+        // =====================================================
+        updateStatus('🔌 Conéctate al servidor', 'waiting');
+        roomInput.value = 'BOXES';
+        renderPlayers([]);
+        hostControls.classList.add('hidden');
+        drawBoard({ players: [], lines: [], boxes: [], gameStarted: false });
+
+        console.log('🔄 Dots and Boxes iniciado correctamente');
+    })();
+</script>
+</body>
+</html>
